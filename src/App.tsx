@@ -5,7 +5,7 @@ import Skills from "./sections/Skills/Skills";
 import Projects from "./sections/Projects/Projects";
 import Experience from "./sections/Experience/Experience";
 import Contact from "./sections/Contact/Contact";
-import AIChatbot from "./components/ui/AIChatbot"
+import AIChatbot from "./components/ui/chatbot/AIChatbot"
 
 function App() {
   return (
