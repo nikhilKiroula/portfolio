@@ -1,47 +1,51 @@
 @import "tailwindcss";
 @import "./variables.css";
 
-/* Reset default browser spacing and box sizing. */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@layer base {
+  /* Reset default browser spacing and define consistent box sizing. */
+  *,
+  *::before,
+  *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-/* Enable smooth scrolling for anchor navigation. */
-html {
-  scroll-behavior: smooth;
-}
+  /* Enable smooth scrolling for anchor navigation. */
+  html {
+    scroll-behavior: smooth;
+  }
 
-/* Define the global application appearance. */
-body {
-  min-width: 320px;
-  min-height: 100vh;
+  /* Define the global application appearance. */
+  body {
+    min-width: 320px;
+    min-height: 100vh;
 
-  background: var(--color-bg);
-  color: var(--color-text);
+    background: var(--color-bg);
+    color: var(--color-text);
 
-  font-family: var(--font-sans);
+    font-family: var(--font-sans);
 
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
 
-/* Remove default link styling. */
-a {
-  color: inherit;
-  text-decoration: none;
-}
+  /* Remove default link styling. */
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 
-/* Keep form controls consistent with the application's typography. */
-button,
-input,
-textarea {
-  font: inherit;
-}
+  /* Keep form controls consistent with the application's typography. */
+  button,
+  input,
+  textarea {
+    font: inherit;
+  }
 
-/* Prevent images from overflowing their containers. */
-img {
-  display: block;
-  max-width: 100%;
+  /* Prevent images from overflowing their containers. */
+  img {
+    display: block;
+    max-width: 100%;
+  }
 }
