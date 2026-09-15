@@ -1,10 +1,11 @@
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import {
   ArrowUpRight,
   Mail,
   MapPin,
   Send,
 } from "lucide-react";
-import { FaLinkedin, FaGithub } from "react-icons/fa";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 import Container from "../../components/common/Container";
 
@@ -18,6 +19,7 @@ const contactDetails = [
   {
     label: "Location",
     value: "Delhi, India",
+    href: "#",
     icon: MapPin,
   },
 ];
@@ -36,6 +38,112 @@ const socialLinks = [
 ];
 
 function Contact() {
+  // Store all contact form values in one state object.
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+
+  // Track whether the form is currently being submitted.
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Store the message shown after form submission.
+  const [statusMessage, setStatusMessage] = useState("");
+
+  // Track whether the latest submission was successful.
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  // Update the corresponding field whenever the user types.
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = event.target;
+
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+
+    // Clear the previous status when the user starts editing again.
+    if (statusMessage) {
+      setStatusMessage("");
+    }
+  };
+
+  // Submit the contact form to the backend Resend API.
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const name = formData.name.trim();
+    const email = formData.email.trim();
+    const subject = formData.subject.trim();
+    const message = formData.message.trim();
+
+    // Validate required fields before making the API request.
+    if (!name || !email || !subject || !message) {
+      setIsSuccess(false);
+      setStatusMessage("Please fill in all fields.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setStatusMessage("");
+
+      // Send the form data to the Express backend.
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/contact`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            subject,
+            message,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      // Handle backend validation or Resend errors.
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to send your message.");
+      }
+
+      // Show success feedback to the visitor.
+      setIsSuccess(true);
+      setStatusMessage(
+        data.message || "Your message has been sent successfully.",
+      );
+
+      // Clear the form after a successful submission.
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
+    } catch (error) {
+      console.error("Contact form error:", error);
+
+      setIsSuccess(false);
+      setStatusMessage(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.",
+      );
+    } finally {
+      // Re-enable the form after the request finishes.
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section
       id="contact"
@@ -297,6 +405,8 @@ function Contact() {
 
           {/* Contact form. */}
           <form
+            onSubmit={handleSubmit}
+            noValidate
             className="
               rounded-2xl
               border
@@ -325,6 +435,9 @@ function Contact() {
                   id="name"
                   name="name"
                   type="text"
+                  value={formData.name}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
                   placeholder="Your name"
                   className="
                     mt-2
@@ -342,6 +455,8 @@ function Contact() {
                     transition-colors
                     duration-200
                     focus:border-[var(--color-primary)]
+                    disabled:cursor-not-allowed
+                    disabled:opacity-60
                   "
                 />
               </div>
@@ -363,6 +478,9 @@ function Contact() {
                   id="email"
                   name="email"
                   type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
                   placeholder="you@example.com"
                   className="
                     mt-2
@@ -380,6 +498,8 @@ function Contact() {
                     transition-colors
                     duration-200
                     focus:border-[var(--color-primary)]
+                    disabled:cursor-not-allowed
+                    disabled:opacity-60
                   "
                 />
               </div>
@@ -402,6 +522,9 @@ function Contact() {
                 id="subject"
                 name="subject"
                 type="text"
+                value={formData.subject}
+                onChange={handleChange}
+                disabled={isSubmitting}
                 placeholder="What would you like to discuss?"
                 className="
                   mt-2
@@ -419,6 +542,8 @@ function Contact() {
                   transition-colors
                   duration-200
                   focus:border-[var(--color-primary)]
+                  disabled:cursor-not-allowed
+                  disabled:opacity-60
                 "
               />
             </div>
@@ -440,6 +565,9 @@ function Contact() {
                 id="message"
                 name="message"
                 rows={6}
+                value={formData.message}
+                onChange={handleChange}
+                disabled={isSubmitting}
                 placeholder="Tell me a little about your project..."
                 className="
                   mt-2
@@ -459,13 +587,36 @@ function Contact() {
                   transition-colors
                   duration-200
                   focus:border-[var(--color-primary)]
+                  disabled:cursor-not-allowed
+                  disabled:opacity-60
                 "
               />
             </div>
 
+            {/* Submission status message. */}
+            {statusMessage && (
+              <p
+                role="status"
+                aria-live="polite"
+                className={`
+                  mt-4
+                  text-sm
+                  leading-6
+                  ${
+                    isSuccess
+                      ? "text-[var(--color-success)]"
+                      : "text-red-400"
+                  }
+                `}
+              >
+                {statusMessage}
+              </p>
+            )}
+
             {/* Submit button. */}
             <button
               type="submit"
+              disabled={isSubmitting}
               className="
                 mt-5
                 inline-flex
@@ -484,11 +635,17 @@ function Contact() {
                 duration-200
                 hover:bg-[var(--color-primary-hover)]
                 hover:shadow-[var(--shadow-primary)]
+                disabled:cursor-not-allowed
+                disabled:opacity-60
                 sm:w-auto
               "
             >
-              Send Message
-              <Send size={16} />
+              {isSubmitting ? "Sending..." : "Send Message"}
+
+              <Send
+                size={16}
+                className={isSubmitting ? "animate-pulse" : ""}
+              />
             </button>
           </form>
         </div>
