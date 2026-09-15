@@ -1,6 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 
 import Container from "../../components/common/Container";
+import profileImage from "../../assets/images/profile/profile.png";
 
 function Hero() {
   return (
@@ -107,22 +108,14 @@ function Hero() {
           <div className="relative mx-auto w-full max-w-[420px] pb-24 sm:max-w-[460px] sm:pb-20 lg:max-w-[500px] lg:pb-0">
             {" "}
             {/* Main image container. Replace the placeholder with the real profile image later. */}
-            <div className="relative mx-auto aspect-[4/5] w-full overflow-hidden rounded-[2rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-primary)]">
-              {/* Placeholder until the final profile image is added. */}
-              <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_50%_35%,rgba(124,58,237,0.22),transparent_45%)] px-8 text-center">
-                <div>
-                  <p className="font-mono text-sm text-[var(--color-primary-hover)]">
-                    &lt; developer /&gt;
-                  </p>
-
-                  <p className="mt-3 text-2xl font-semibold">Your Visual</p>
-
-                  <p className="mt-1 text-sm text-[var(--color-text-muted)]">
-                    Profile image goes here
-                  </p>
-                </div>
-              </div>
-
+            <div className="group relative mx-auto aspect-square w-full overflow-hidden rounded-[2rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-primary)] transition-all duration-500 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:border-[var(--color-primary)] hover:shadow-[0_0_45px_rgba(124,58,237,0.2)]">
+              {" "}
+              {/* Developer profile visual. */}
+              <img
+                src={profileImage}
+                alt="Developer working at a laptop"
+                className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+              />
               {/* Small status card layered over the image. */}
               <div className="absolute bottom-4 left-4 max-w-[calc(100%-2rem)] rounded-xl border border-[var(--color-border)] bg-[rgba(17,17,24,0.82)] px-3 py-2.5 backdrop-blur-xl sm:bottom-5 sm:left-5 sm:px-4 sm:py-3">
                 <div className="flex items-center gap-2">
@@ -135,7 +128,7 @@ function Hero() {
               </div>
             </div>
             {/* AI assistant preview card. */}
-            <div className="relative z-10 mx-auto -mt-14 w-[calc(100%-1.5rem)] rounded-2xl border border-[var(--color-border)] bg-[rgba(17,17,24,0.92)] p-4 shadow-[var(--shadow-primary)] backdrop-blur-xl sm:mr-[-1rem] sm:ml-auto sm:w-[20rem] lg:absolute lg:-right-8 lg:-bottom-7 lg:m-0">
+            <div className="relative z-10 mx-auto -mt-14 w-[calc(100%-1.5rem)] rounded-2xl border border-[var(--color-border)] bg-[rgba(17,17,24,0.92)] p-4 shadow-[var(--shadow-primary)] backdrop-blur-xl transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[var(--color-primary)] sm:mr-[-1rem] sm:ml-auto sm:w-[20rem] lg:absolute lg:-right-8 lg:-bottom-7 lg:m-0">
               <div className="flex items-start gap-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--color-primary)] text-sm">
                   🤖
@@ -152,7 +145,7 @@ function Hero() {
 
               <button
                 type="button"
-                className="mt-4 flex w-full items-center justify-between rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] px-3 py-2.5 text-left text-xs text-[var(--color-text-muted)] transition-colors hover:border-[var(--color-primary)] hover:text-[var(--color-text)]"
+                className="mt-4 flex w-full items-center justify-between rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] px-3 py-2.5 text-left text-xs text-[var(--color-text-muted)] transition-all duration-200 hover:border-[var(--color-primary)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text)]"
               >
                 <span>Ask something...</span>
                 <ArrowUpRight size={15} />
