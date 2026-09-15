@@ -109,7 +109,7 @@ function AIChatbot() {
       setIsLoading(true);
 
       // Send the user's message to the backend AI endpoint.
-      const response = await fetch("http://localhost:2000/api/chat", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

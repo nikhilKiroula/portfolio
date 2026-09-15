@@ -7,7 +7,12 @@ const app = express();
 const PORT = process.env.PORT || 2000;
 
 // Allow the frontend to communicate with this backend.
-app.use(cors());
+// Allow requests from the configured frontend origin.
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  }),
+);
 
 // Parse incoming JSON request bodies.
 app.use(express.json());

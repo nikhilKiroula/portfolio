@@ -25,3 +25,8 @@ dist-ssr
 
 # Backend files
 backend/.env
+
+# Frontend
+.env
+.env.local
+.env.*.local
