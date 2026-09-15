@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import chatRouter from "./routes/chat.js";
+import contactRouter from "./routes/contact.js";
 
 const app = express();
 const PORT = process.env.PORT || 2000;
@@ -19,6 +20,9 @@ app.use(express.json());
 
 // Mount the AI chat API under /api/chat.
 app.use("/api/chat", chatRouter);
+
+// Mount the contact form API.
+app.use("/api/contact", contactRouter);
 
 app.get("/api/health", (req, res) => {
   res.json({
