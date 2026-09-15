@@ -23,6 +23,7 @@ const suggestedQuestions = [
 ];
 
 function AIChatbot() {
+  const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -45,84 +46,113 @@ function AIChatbot() {
   };
 
   const handleEdit = (message: Message) => {
-    // Put the selected user message back into the input for editing.
+    // Put the selected message into the input for editing.
     setInput(message.content);
+
+    // Remember which message is currently being edited.
+    setEditingMessageId(message.id);
   };
 
   const handleClearChat = () => {
-    // Reset the conversation to the initial welcome message.
+    // Reset the conversation to the initial assistant message.
     setMessages(initialMessages);
+
+    // Clear the input field.
     setInput("");
+
+    // Reset copied message state.
     setCopiedMessageId(null);
+
+    // Exit edit mode if a message was being edited.
+    setEditingMessageId(null);
   };
 
-const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-  const trimmedInput = input.trim();
+    const trimmedInput = input.trim();
 
-  // Ignore empty messages.
-  if (!trimmedInput) return;
+    // Ignore empty messages.
+    if (!trimmedInput || isLoading) return;
 
-  const userMessage: Message = {
-    id: Date.now(),
-    role: "user",
-    content: trimmedInput,
-  };
+    const userMessage: Message = {
+      id: Date.now(),
+      role: "user",
+      content: trimmedInput,
+    };
 
-  // Show the user's message immediately.
-  setMessages((previous) => [...previous, userMessage]);
-  setInput("");
+    // If editing an existing message, remove that message
+    // and everything that came after it.
+    if (editingMessageId !== null) {
+      setMessages((previous) => {
+        const messageIndex = previous.findIndex(
+          (message) => message.id === editingMessageId,
+        );
 
-  try {
-    // Show the loading state while waiting for the AI response.
-    setIsLoading(true);
+        if (messageIndex === -1) {
+          return [...previous, userMessage];
+        }
 
-    // Send the user's message to the backend AI endpoint.
-    const response = await fetch("http://localhost:2000/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: trimmedInput,
-      }),
-    });
+        return [...previous.slice(0, messageIndex), userMessage];
+      });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to get AI response.");
+      setEditingMessageId(null);
+    } else {
+      // Show a new user message immediately.
+      setMessages((previous) => [...previous, userMessage]);
     }
 
-    // Add the AI response to the conversation.
-    setMessages((previous) => [
-      ...previous,
-      {
-        id: Date.now() + 1,
-        role: "assistant",
-        content: data.message,
-      },
-    ]);
-  } catch (error) {
-    console.error("Chat request failed:", error);
+    setInput("");
 
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error occurred.";
+    try {
+      // Show loading state while waiting for the AI response.
+      setIsLoading(true);
 
-    setMessages((previous) => [
-      ...previous,
-      {
-        id: Date.now() + 1,
-        role: "assistant",
-        content: `Error: ${errorMessage}`,
-      },
-    ]);
-  } finally {
-    // Stop the loading state after the request finishes or fails.
-    setIsLoading(false);
-  }
-};
+      // Send the user's message to the backend AI endpoint.
+      const response = await fetch("http://localhost:2000/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: trimmedInput,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to get AI response.");
+      }
+
+      // Add the fresh AI response to the conversation.
+      setMessages((previous) => [
+        ...previous,
+        {
+          id: Date.now() + 1,
+          role: "assistant",
+          content: data.message,
+        },
+      ]);
+    } catch (error) {
+      console.error("Chat request failed:", error);
+
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred.";
+
+      setMessages((previous) => [
+        ...previous,
+        {
+          id: Date.now() + 1,
+          role: "assistant",
+          content: `Error: ${errorMessage}`,
+        },
+      ]);
+    } finally {
+      // Always stop the loading state after the request finishes.
+      setIsLoading(false);
+    }
+  };
 
   const handleSuggestionSelect = (question: string) => {
     // Put the selected suggestion into the input so the user can review it.
@@ -154,6 +184,8 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
             value={input}
             onChange={setInput}
             onSubmit={handleSubmit}
+            isLoading={isLoading}
+            isEditing={editingMessageId !== null}
           />
         </div>
       )}
