@@ -15,6 +15,7 @@ import {
   SiTypescript,
   SiVercel,
 } from "react-icons/si";
+import { BsOpenai } from "react-icons/bs";
 
 import {
   Braces,
@@ -23,7 +24,6 @@ import {
   GitBranch,
   Server,
   ShieldCheck,
-  Sparkles,
   Wrench,
   Code2
 } from "lucide-react";
@@ -106,7 +106,7 @@ const additionalSkills = [
   {
     label: "AI Integration",
     value: "OpenAI SDK",
-    icon: Sparkles,
+    icon: BsOpenai,
   },
   {
     label: "Programming",
