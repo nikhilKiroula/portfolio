@@ -10,6 +10,7 @@ interface AIChatMessagesProps {
   onCopy: (message: Message) => void;
   onEdit: (message: Message) => void;
   onSuggestionSelect: (question: string) => void;
+  isLoading: boolean;
 }
 
 function AIChatMessages({
@@ -19,18 +20,10 @@ function AIChatMessages({
   onCopy,
   onEdit,
   onSuggestionSelect,
+  isLoading,
 }: AIChatMessagesProps) {
   return (
-    <div
-      className="
-        flex-1
-        space-y-4
-        overflow-y-auto
-        px-4
-        py-5
-        sm:px-5
-      "
-    >
+    <div className="flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-5">
       {messages.map((message) => {
         const isAssistant = message.role === "assistant";
 
@@ -42,20 +35,7 @@ function AIChatMessages({
             }`}
           >
             {isAssistant && (
-              <div
-                className="
-                  mt-1
-                  flex
-                  h-7
-                  w-7
-                  shrink-0
-                  items-center
-                  justify-center
-                  rounded-lg
-                  bg-[var(--color-primary)]
-                  text-white
-                "
-              >
+              <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--color-primary)] text-white">
                 <Sparkles size={14} />
               </div>
             )}
@@ -66,18 +46,11 @@ function AIChatMessages({
               }`}
             >
               <div
-                className={`
-                  rounded-2xl
-                  px-3.5
-                  py-3
-                  text-sm
-                  leading-relaxed
-                  ${
-                    isAssistant
-                      ? "rounded-tl-md bg-[var(--color-surface)] text-[var(--color-text-secondary)]"
-                      : "rounded-tr-md bg-[var(--color-primary)] text-white"
-                  }
-                `}
+                className={`rounded-2xl px-3.5 py-3 text-sm leading-relaxed ${
+                  isAssistant
+                    ? "rounded-tl-md bg-[var(--color-surface)] text-[var(--color-text-secondary)]"
+                    : "rounded-tr-md bg-[var(--color-primary)] text-white"
+                } `}
               >
                 <ReactMarkdown
                   components={{
@@ -103,9 +76,7 @@ function AIChatMessages({
                       </ol>
                     ),
 
-                    li: ({ children }) => (
-                      <li className="pl-1">{children}</li>
-                    ),
+                    li: ({ children }) => <li className="pl-1">{children}</li>,
 
                     h1: ({ children }) => (
                       <h1 className="mb-2 text-base font-semibold text-[var(--color-text)]">
@@ -136,20 +107,7 @@ function AIChatMessages({
                   <button
                     type="button"
                     onClick={() => onCopy(message)}
-                    className="
-                      flex
-                      items-center
-                      gap-1.5
-                      rounded-md
-                      px-2
-                      py-1.5
-                      text-[10px]
-                      font-medium
-                      text-[var(--color-text-muted)]
-                      transition-colors
-                      hover:bg-[var(--color-surface-hover)]
-                      hover:text-[var(--color-text)]
-                    "
+                    className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[10px] font-medium text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
                   >
                     {copiedMessageId === message.id ? (
                       <>
@@ -170,14 +128,7 @@ function AIChatMessages({
                       onClick={() => onEdit(message)}
                       aria-label="Edit message"
                       title="Edit message"
-                      className="
-                        rounded-md
-                        p-1.5
-                        text-[var(--color-text-muted)]
-                        transition-colors
-                        hover:bg-[var(--color-surface-hover)]
-                        hover:text-[var(--color-text)]
-                      "
+                      className="rounded-md p-1.5 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
                     >
                       <Pencil size={13} />
                     </button>
@@ -187,14 +138,7 @@ function AIChatMessages({
                       onClick={() => onCopy(message)}
                       aria-label="Copy message"
                       title="Copy message"
-                      className="
-                        rounded-md
-                        p-1.5
-                        text-[var(--color-text-muted)]
-                        transition-colors
-                        hover:bg-[var(--color-surface-hover)]
-                        hover:text-[var(--color-text)]
-                      "
+                      className="rounded-md p-1.5 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
                     >
                       {copiedMessageId === message.id ? (
                         <Check size={13} />
@@ -208,22 +152,7 @@ function AIChatMessages({
             </div>
 
             {!isAssistant && (
-              <div
-                className="
-                  mt-1
-                  flex
-                  h-7
-                  w-7
-                  shrink-0
-                  items-center
-                  justify-center
-                  rounded-lg
-                  border
-                  border-[var(--color-border)]
-                  bg-[var(--color-surface)]
-                  text-[var(--color-text-secondary)]
-                "
-              >
+              <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)]">
                 <User size={14} />
               </div>
             )}
@@ -231,14 +160,25 @@ function AIChatMessages({
         );
       })}
 
+      {isLoading && (
+        <div className="flex items-start gap-2.5">
+          <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--color-primary)] text-white">
+            <Sparkles size={14} />
+          </div>
+
+          <div className="flex items-center gap-1.5 rounded-2xl rounded-tl-md bg-[var(--color-surface)] px-4 py-3.5">
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--color-text-muted)] [animation-delay:-0.3s]" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--color-text-muted)] [animation-delay:-0.15s]" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--color-text-muted)]" />
+          </div>
+        </div>
+      )}
+
       {/* Show helpful questions before the conversation starts. */}
       {messages.length === 1 && (
         <div className="mt-6">
           <div className="mb-3 flex items-center gap-2">
-            <Sparkles
-              size={13}
-              className="text-[var(--color-primary-hover)]"
-            />
+            <Sparkles size={13} className="text-[var(--color-primary-hover)]" />
 
             <p className="text-xs font-medium text-[var(--color-text-muted)]">
               Try asking
@@ -251,25 +191,7 @@ function AIChatMessages({
                 key={question}
                 type="button"
                 onClick={() => onSuggestionSelect(question)}
-                className="
-                  block
-                  w-full
-                  rounded-xl
-                  border
-                  border-[var(--color-border)]
-                  bg-[var(--color-surface)]
-                  px-3.5
-                  py-3
-                  text-left
-                  text-xs
-                  font-medium
-                  text-[var(--color-text-secondary)]
-                  transition-all
-                  duration-200
-                  hover:border-[var(--color-primary)]
-                  hover:bg-[var(--color-surface-hover)]
-                  hover:text-[var(--color-text)]
-                "
+                className="block w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-3 text-left text-xs font-medium text-[var(--color-text-secondary)] transition-all duration-200 hover:border-[var(--color-primary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]"
               >
                 {question}
               </button>

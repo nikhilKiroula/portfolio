@@ -1,4 +1,4 @@
-import { Bot, RotateCcw, Sparkles, X } from "lucide-react";
+import { Bot, RotateCcw, X } from "lucide-react";
 
 interface AIChatHeaderProps {
   onClear: () => void;
