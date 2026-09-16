@@ -12,7 +12,7 @@ const navLinks = [
 function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const [activeSection, setActiveSection] = useState("home");
   useEffect(() => {
     // Update navbar styling when the page is scrolled.
     const handleScroll = () => {
@@ -24,6 +24,37 @@ function Navbar() {
     // Clean up the event listener when the component is removed.
     return () => {
       window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Observe portfolio sections and update the active navbar link.
+    const sections = navLinks
+      .map((link) => document.querySelector(link.href))
+      .filter((section): section is Element => section !== null);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleSection = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (visibleSection) {
+          setActiveSection(visibleSection.target.id);
+        }
+      },
+      {
+        // The section becomes active around the upper-middle part of the viewport.
+        rootMargin: "-20% 0px -55% 0px",
+        threshold: [0.1, 0.25, 0.5],
+      },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+
+    // Clean up the observer when the navbar is removed.
+    return () => {
+      observer.disconnect();
     };
   }, []);
 
@@ -74,9 +105,22 @@ function Navbar() {
             <a
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-[var(--color-text-secondary)] transition-colors duration-200 hover:text-[var(--color-text)]"
+              className={`relative py-2 text-sm font-medium transition-colors duration-200 ${
+                activeSection === link.href.slice(1)
+                  ? "text-[var(--color-text)]"
+                  : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+              } `}
             >
               {link.label}
+
+              {/* Small underline indicates the currently active section. */}
+              <span
+                className={`absolute bottom-0 left-0 h-0.5 rounded-full bg-[var(--color-primary)] transition-all duration-300 ${
+                  activeSection === link.href.slice(1)
+                    ? "w-full opacity-100"
+                    : "w-0 opacity-0"
+                } `}
+              />
             </a>
           ))}
         </div>
@@ -117,7 +161,11 @@ function Navbar() {
               key={link.href}
               href={link.href}
               onClick={closeMobileMenu}
-              className="rounded-lg px-4 py-3 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-text)]"
+              className={`rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
+                activeSection === link.href.slice(1)
+                  ? "bg-[var(--color-surface)] text-[var(--color-text)]"
+                  : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text)]"
+              } `}
             >
               {link.label}
             </a>
