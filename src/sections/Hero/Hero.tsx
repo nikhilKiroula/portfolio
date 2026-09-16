@@ -64,6 +64,7 @@ function Hero() {
 
               <a
                 href="/resume.pdf"
+                download="Nikhil-Singh-Kiroula-Resume.pdf"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-3 text-sm font-semibold text-[var(--color-text)] transition-all duration-300 hover:border-[var(--color-primary)] hover:bg-[var(--color-surface-hover)] sm:w-auto"
               >
                 Download Resume
@@ -127,7 +128,6 @@ function Hero() {
                 </div>
               </div>
             </div>
-            
             {/* AI assistant preview card. */}
             {/* <div className="relative z-10 mx-auto -mt-14 w-[calc(100%-1.5rem)] rounded-2xl border border-[var(--color-border)] bg-[rgba(17,17,24,0.92)] p-4 shadow-[var(--shadow-primary)] backdrop-blur-xl transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[var(--color-primary)] sm:mr-[-1rem] sm:ml-auto sm:w-[20rem] lg:absolute lg:-right-8 lg:-bottom-7 lg:m-0">
               <div className="flex items-start gap-3">
@@ -152,7 +152,6 @@ function Hero() {
                 <ArrowUpRight size={15} />
               </button>
             </div> */}
-            
           </div>
         </div>
       </Container>
