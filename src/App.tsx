@@ -5,7 +5,8 @@ import Skills from "./sections/Skills/Skills";
 import Projects from "./sections/Projects/Projects";
 import Experience from "./sections/Experience/Experience";
 import Contact from "./sections/Contact/Contact";
-import AIChatbot from "./components/ui/chatbot/AIChatbot"
+import AIChatbot from "./components/ui/chatbot/AIChatbot";
+import Footer from "./components/layout/Footer";
 
 function App() {
   return (
@@ -14,13 +15,15 @@ function App() {
 
       <main>
         <Hero />
-        <About/>
-        <Skills/>
-        <Projects/>
-        <Experience/>
-        <Contact/>
+        <About />
+        <Skills />
+        <Projects />
+        <Experience />
+        <Contact />
       </main>
-      <AIChatbot/>
+      
+      <Footer />
+      <AIChatbot />
     </>
   );
 }
