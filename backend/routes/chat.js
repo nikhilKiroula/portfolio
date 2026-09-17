@@ -46,18 +46,6 @@ router.post("/", async (req, res) => {
     res.setHeader("Connection", "keep-alive");
 
     for await (const event of stream) {
-      // Capture usage information when the response is completed.
-      // This is only for verifying Groq prompt-cache usage.
-      if (event.type === "response.completed") {
-        const usage = event.response?.usage;
-
-        console.log("AI USAGE:", {
-          inputTokens: usage?.input_tokens,
-          cachedTokens: usage?.input_tokens_details?.cached_tokens,
-          outputTokens: usage?.output_tokens,
-          totalTokens: usage?.total_tokens,
-        });
-      }
 
       // Send generated text to the frontend progressively.
       if (event.type === "response.output_text.delta") {
