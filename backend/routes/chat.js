@@ -22,14 +22,12 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const response = await openai.responses.create({
+    const stream = await client.responses.create({
       model: process.env.AI_MODEL,
-      
-      // Use lower reasoning effort for faster, simpler portfolio queries.
       reasoning: {
         effort: "low",
       },
-
+      stream: true,
       input: [
         {
           role: "system",
@@ -42,10 +40,25 @@ router.post("/", async (req, res) => {
       ],
     });
 
-    res.json({
-      success: true,
-      message: response.output_text,
-    });
+    // Tell the browser that the response will arrive as SSE events.
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    for await (const event of stream) {
+      // Groq/OpenAI Responses API sends generated text as delta events.
+      if (event.type === "response.output_text.delta") {
+        res.write(
+          `data: ${JSON.stringify({
+            delta: event.delta,
+          })}\n\n`,
+        );
+      }
+    }
+
+    // Tell the frontend that generation is complete.
+    res.write("data: [DONE]\n\n");
+    res.end();
   } catch (error) {
     console.error("AI chat error:", error);
 

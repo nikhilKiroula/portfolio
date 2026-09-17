@@ -119,21 +119,72 @@ function AIChatbot() {
         }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to get AI response.");
+      if (!response.ok || !response.body) {
+        throw new Error("Failed to connect to AI assistant.");
       }
 
-      // Add the fresh AI response to the conversation.
+      // Create an empty assistant message first.
+      // The streamed text will be added to this message progressively.
+      const assistantMessageId = Date.now() + 1;
+
       setMessages((previous) => [
         ...previous,
         {
-          id: Date.now() + 1,
+          id: assistantMessageId,
           role: "assistant",
-          content: data.message,
+          content: "",
         },
       ]);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      let buffer = "";
+      let assistantText = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+
+        if (done) break;
+
+        // Decode the incoming stream chunk.
+        buffer += decoder.decode(value, { stream: true });
+
+        // SSE events are separated by a blank line.
+        const events = buffer.split("\n\n");
+
+        // Keep the incomplete event for the next chunk.
+        buffer = events.pop() ?? "";
+
+        for (const event of events) {
+          const line = event
+            .split("\n")
+            .find((item) => item.startsWith("data: "));
+
+          if (!line) continue;
+
+          const payload = line.slice(6);
+
+          // Backend has finished streaming.
+          if (payload === "[DONE]") continue;
+
+          const parsed = JSON.parse(payload);
+
+          assistantText += parsed.delta;
+
+          // Update the same assistant message progressively.
+          setMessages((previous) =>
+            previous.map((message) =>
+              message.id === assistantMessageId
+                ? {
+                    ...message,
+                    content: assistantText,
+                  }
+                : message,
+            ),
+          );
+        }
+      }
     } catch (error) {
       console.error("Chat request failed:", error);
 
