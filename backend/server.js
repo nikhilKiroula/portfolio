@@ -9,9 +9,14 @@ const PORT = process.env.PORT || 2000;
 
 // Allow the frontend to communicate with this backend.
 // Allow requests from the configured frontend origin.
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://portfolio-ruddy-seven-59.vercel.app",
+];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: allowedOrigins,
   }),
 );
 
