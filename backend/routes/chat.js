@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const stream = await client.responses.create({
+    const stream = await openai.responses.create({
       model: process.env.AI_MODEL,
       reasoning: {
         effort: "low",
