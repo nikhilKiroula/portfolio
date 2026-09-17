@@ -22,24 +22,75 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const stream = await openai.responses.create({
-      model: process.env.AI_MODEL,
-      reasoning: {
-        effort: "low",
-      },
-      stream: true,
-      input: [
-        {
-          role: "system",
-          content: portfolioContext,
-        },
-        {
-          role: "user",
-          content: message.trim(),
-        },
-      ],
-    });
+    let stream;
 
+    const MAX_RETRIES = 3;
+
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        stream = await openai.responses.create({
+          model: process.env.AI_MODEL,
+          reasoning: {
+            effort: "low",
+          },
+          stream: true,
+          input: [
+            {
+              role: "system",
+              content: portfolioContext,
+            },
+            {
+              role: "user",
+              content: message.trim(),
+            },
+          ],
+        });
+
+        // Request succeeded.
+        break;
+      } catch (error) {
+        const status = error?.status;
+
+        // Only retry temporary rate/server errors.
+        const isRetryable =
+          status === 429 ||
+          status === 500 ||
+          status === 502 ||
+          status === 503;
+
+        // Don't retry non-temporary errors.
+        if (!isRetryable || attempt === MAX_RETRIES) {
+          throw error;
+        }
+
+        const retryAfter = error?.headers?.get?.("retry-after");
+
+        let delay;
+
+        if (retryAfter) {
+          const seconds = Number(retryAfter);
+
+          delay = Number.isFinite(seconds)
+            ? seconds * 1000
+            : Math.min(1000 * 2 ** attempt, 8000);
+        } else {
+          // Exponential backoff with jitter.
+          delay =
+            Math.min(1000 * 2 ** attempt, 8000) +
+            Math.random() * 500;
+        }
+
+        console.warn(
+          `AI request failed with ${status}. Retrying in ${Math.round(delay)}ms...`,
+        );
+
+        await sleep(delay);
+      }
+    }
+
+    if (!stream) {
+      throw new Error("AI stream could not be created.");
+    }
     // Tell the browser that the response will arrive as SSE events.
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
