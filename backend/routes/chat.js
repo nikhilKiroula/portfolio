@@ -24,6 +24,11 @@ router.post("/", async (req, res) => {
 
     const response = await openai.responses.create({
       model: process.env.AI_MODEL,
+      
+      // Use lower reasoning effort for faster, simpler portfolio queries.
+      reasoning: {
+        effort: "low",
+      },
 
       input: [
         {
