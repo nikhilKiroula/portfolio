@@ -46,7 +46,20 @@ router.post("/", async (req, res) => {
     res.setHeader("Connection", "keep-alive");
 
     for await (const event of stream) {
-      // Groq/OpenAI Responses API sends generated text as delta events.
+      // Capture usage information when the response is completed.
+      // This is only for verifying Groq prompt-cache usage.
+      if (event.type === "response.completed") {
+        const usage = event.response?.usage;
+
+        console.log("AI USAGE:", {
+          inputTokens: usage?.input_tokens,
+          cachedTokens: usage?.input_tokens_details?.cached_tokens,
+          outputTokens: usage?.output_tokens,
+          totalTokens: usage?.total_tokens,
+        });
+      }
+
+      // Send generated text to the frontend progressively.
       if (event.type === "response.output_text.delta") {
         res.write(
           `data: ${JSON.stringify({
@@ -61,6 +74,12 @@ router.post("/", async (req, res) => {
     res.end();
   } catch (error) {
     console.error("AI chat error:", error);
+
+    // If streaming has already started, don't try to send a JSON response.
+    if (res.headersSent) {
+      res.end();
+      return;
+    }
 
     res.status(500).json({
       success: false,
